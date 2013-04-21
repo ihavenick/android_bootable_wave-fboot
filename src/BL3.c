@@ -102,6 +102,12 @@ runMode_t checkFBOOT( void )
    if((1 << 2) & (KEYIFROW & 0xFF)) //COL 0 & ROW 2 - Camera key
 	   return rm_FOTA_FPFK;	   //format partitions put zimage to /boot
    return rm_FOTA_RECOVERY;
+   //COL 0 + ROW 0 = HOME KEY
+   //COL 0 + ROW 1 = CAM HALF KEY
+   //COL 0 + ROW 2 = CAM FULL KEY
+   //COL 1 + ROW 0 = CALL KEY
+   //COL 1 + ROW 1 = VOLDOWN KEY
+   //COL 1 + ROW 2 = VOLUP KEY
 }
 
 void BL3_Shadowing( void )
