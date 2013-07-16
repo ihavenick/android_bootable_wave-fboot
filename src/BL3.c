@@ -1,7 +1,7 @@
 /*
  ; This file is part of Badadroid project.
  ;
- ; Copyright (C) 2012 Rebellos, mijoma, b_kubica
+ ; Copyright (C) 2012 Rebellos, mijoma, b_kubica, ihavenick, Tigrouzen
  ;
  ;
  ; Badadroid is free software: you can redistribute it and/or modify
@@ -83,32 +83,29 @@ int getBL3ptrs( void )
    return 0;
 }
 
-
 runMode_t checkFBOOT( void )
 {
-	int i;
-   KEYIFCOL = ((~(1 << 2) & (0xFF)) << 8); //COL 2
-   for(i = 0; i < 10000; i++); //short delay
-   if((1 << 0) & (KEYIFROW & 0xFF)) //COL 2 & ROW 0 - menu key, if its high its not pressed
-	   return rm_FOTA_RUN;
-   int c;
-   KEYIFCOL = ((~(1 << 1) & (0xFF)) << 8); //COL 1
-   for(c = 0; c < 10000; c++); //short delay
-   if((1 << 2) & (KEYIFROW & 0xFF)) //COL 1 & ROW 2 - Volume up key
-	   return rm_FOTA_BIGMEM;
-   int b;
+
+   KEYIFCOL = ((~(1 << 2) & (0xFF)) << 8); //COL 2 
+   
+   if((1 << 0) & (KEYIFROW & 0xFF)) //COL 2 & ROW 0 - call key, if its high its not pressed 
+	  return rm_FOTA_RUN;// return rm_FOTA_RUN;  
+	return rm_FOTA_RECOVERY;
+  /*  int b;
    KEYIFCOL = ((~(1 << 0) & (0xFF)) << 8); //COL 0
    for(b = 0; b < 10000; b++); //short delay
    if((1 << 2) & (KEYIFROW & 0xFF)) //COL 0 & ROW 2 - Camera key
-	   return rm_FOTA_FPFK;	   //format partitions put zimage to /boot
-   return rm_FOTA_RECOVERY;
+	   return rm_FOTA_FPFK;	   //format partitions put zimage to /boot        */
+   
+}
+
+
    //COL 0 + ROW 0 = HOME KEY
    //COL 0 + ROW 1 = CAM HALF KEY
    //COL 0 + ROW 2 = CAM FULL KEY
    //COL 1 + ROW 0 = CALL KEY
    //COL 1 + ROW 1 = VOLDOWN KEY
    //COL 1 + ROW 2 = VOLUP KEY
-}
 
 void BL3_Shadowing( void )
 {

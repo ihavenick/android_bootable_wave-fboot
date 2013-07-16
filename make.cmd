@@ -1,1 +1,1 @@
-@c:\bada\2.0.6\Tools\Toolchains\ARM\bin\cs-make.exe %1 %2 %3 %4
+@g:\bada\2.0.6\Tools\Toolchains\ARM\bin\cs-make.exe %1 %2 %3 %4

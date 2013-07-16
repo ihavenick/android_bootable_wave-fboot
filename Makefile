@@ -1,6 +1,6 @@
 include Make_dirs
 
-ARMTK := c:\bada\2.0.6\Tools\Toolchains\ARM
+ARMTK := g:\bada\2.0.6\Tools\Toolchains\ARM
 
 CC := $(ARMTK)/bin/arm-bada-eabi-gcc.exe
 AS := $(ARMTK)/bin/arm-bada-eabi-as.exe

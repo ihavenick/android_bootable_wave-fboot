@@ -15,7 +15,8 @@ typedef enum
    rm_FOTA_BIGMEM,
    rm_FOTA_FPFK,
    rm_FOTA_DLOAD,
-
+   rm_FOTA_donothing,
+   
 } runMode_t;
 
 
@@ -94,6 +95,5 @@ extern unsigned char* RAW_BL3;
 
 int getBL3ptrs( void );
 runMode_t checkFBOOT( void );
-
 
 #endif//_FB_BL3_H_

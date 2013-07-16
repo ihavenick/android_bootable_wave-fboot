@@ -25,10 +25,11 @@
 
 int main(runMode_t mode)
 {
-   void* kernelImage = L"/e/zImage";
-   char* cmdlnRM = "bootmode=2 loglevel=4";
-   char* cmdlnBG = "bootmode=10 loglevel=4";
-   char* cmdln = "loglevel=4";
+   void* firefoxImage = L"/e/firefox";
+   void* androidImage = L"/e/android"; // TODO : find what letter for /boot
+   void* recoveryImage = L"/e/recovery";
+   char* cmdlnRM = "bootmode=2 loglevel=0";
+   char* cmdln = "loglevel=0";
    
    unsigned char ATAG_buf[512]={0};
    t_stat filestat;
@@ -36,34 +37,54 @@ int main(runMode_t mode)
    int fd;
    unsigned long kernelSize=0;
    
-   
-   
-   //here we start the real deal :)
    int mmuctrl = MemMMUCacheEnable(gMMUL1PageTable, 1);
    disp_FOTA_Init();
    disp_FOTA_Printf("*----------------------------*");
-   disp_FOTA_Printf("|      Booting Android       |");
-   disp_FOTA_Printf("*----------------------------*");
-//there was a ascii art forgatted it on other pc
-   disp_FOTA_Printf("|                            |");
+   disp_FOTA_Printf("|           Booting          |");
    disp_FOTA_Printf("*----------------------------*");
    disp_FOTA_Printf("");
    
-   //.... Your code here...
 
    __PfsNandInit();
    __PfsMassInit();
    MemoryCardMount();
-   tfs4_stat(kernelImage, &filestat);
+   
+ if(mode == rm_FOTA_Firefox)
+{
+disp_FOTA_Printf("   FireFox");
+tfs4_stat(firefoxImage, &filestat);
+kernelSize = filestat.st_size;
+if ((fd=tfs4_open(firefoxImage, 4)) >= 0)
+{
+    tfs4_read(fd, &KERNEL_BUF, kernelSize);
+    tfs4_close(fd);
+}
+}
+else
+{ 
+   disp_FOTA_Printf("   Android");
+   tfs4_stat(androidImage, &filestat);
    kernelSize = filestat.st_size;
-   if ((fd=tfs4_open(kernelImage, 4)) >= 0)
+   if ((fd=tfs4_open(androidImage, 4)) >= 0)
+   {
+      tfs4_read(fd, &KERNEL_BUF, kernelSize);
+      tfs4_close(fd);
+   }
+}   
+   if (kernelSize <= 0)
+   {
+   disp_FOTA_Printf("Kernel Not Found in /boot");
+   disp_FOTA_Printf("Starting Recovery");
+   
+   
+   tfs4_stat(recoveryImage, &filestat);
+   kernelSize = filestat.st_size;
+   if ((fd=tfs4_open(recoveryImage, 4)) >= 0)
    {
       tfs4_read(fd, &KERNEL_BUF, kernelSize);
       tfs4_close(fd);
    }   
-   if (kernelSize <= 0)
-   {
-   disp_FOTA_Printf("Kernel Not Found");
+   setup_cmdline_tag(cmdlnRM);
    }
 
    
@@ -74,31 +95,23 @@ int main(runMode_t mode)
    setup_core_tag(ATAG_buf);
    setup_serial_tag(0x123, 0x456);
    setup_rev_tag('0');
-   if(mode == rm_BIGMEM)    
-{   
-       setup_cmdline_tag(cmdlnBG); 
-       disp_FOTA_Printf("Bigmem mode");	
-       DRV_Modem_BootingStart();
+
+
+if(mode == rm_FOTA_RECOVERY)
+   {
+       setup_cmdline_tag(cmdlnRM);
+       disp_FOTA_Printf("   Recovery Mode");
 }
-   if(mode == rm_FPFK)    
-{   
-       disp_FOTA_Printf("Under Maintise :D");	
-}
-   if(mode == rm_FOTA_RECOVERY)    
-{   
-       setup_cmdline_tag(cmdlnRM); 
-       disp_FOTA_Printf("recovery mode Activated");	
-}	   
-   else 
-    {   
+else
+   {
        setup_cmdline_tag(cmdln);
+	   disp_FOTA_Printf("   Normal");
 	   DRV_Modem_BootingStart();
-	}
+   }	
+
    setup_end_tag();
    
-   //copy kernel to the right position
    memcpy(&KERNEL_START, &KERNEL_BUF, kernelSize);
-   //SYSCON operations
    *((unsigned int*)SYSCON_NORMAL_CFG) = 0xFFFFFFFF; 
    _CoDisableDCache();
    _System_DisableVIC();
